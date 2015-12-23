@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>OK</title>
+</head>
+<body style="font-family: monospace">
+<main>
+  <p>
+    <label>A = <input type="number" max="100" min="0" data-model="a" name="a" /></label>
+    <label>B = <input type="number" max="100" min="0" data-model="b" name="b" /></label>
+    <label>A + B = <input type="number" data-value="Number(this.a) + Number(this.b)" readonly /></label>
+  </p>
+  <hr />
+  <p>
+    <label>A = <input type="range" max="100" min="0" data-model="a" name="a" /></label>
+    <label>B = <input type="range" max="100" min="0" data-model="b" name="b" /></label>
+    <label>A - B = <input type="range" max="100" min="-100" data-value="Number(this.a) - Number(this.b)" disabled /></label>
+  </p>
+  <hr />
+  <p>
+    <label>A = <progress data-value="Number(this.a)" max="100" min="0"></progress></label>
+    <label>B = <progress data-value="Number(this.b)" max="100" min="0"></progress></label>
+    <label>A * B = <progress data-value="Number(this.a) * Number(this.b)" max="10000" min="0"></progress></label>
+  </p>
+  <hr />
+  <p>
+    A / B =
+    <span data-bind="Number(this.a)"></span> /
+    <span data-bind="Number(this.b)"></span> =
+    <span data-bind="Number(this.a) / Number(this.b)"></span>
+  </p>
+  <hr />
+  <button>重置0</button>
+</main>
+<script src="watch.js"></script>
+<script>
+  var vm = bootstrap();
+  document.querySelector('button').onclick = function() { vm.a = vm.b = 0; };
+</script>
+</body>
+</html>
