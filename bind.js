@@ -57,7 +57,7 @@ function bind(root, vm) {
 
     expression(vm);
 
-    for (let match, regexp = /this\.(\w*)/g; (match = regexp.exec(expText)); ) {
+    for (var match, regexp = /this\.(\w*)/g; (match = regexp.exec(expText)); ) {
       pushOrSet(bindings, match[1], expression);
     }
   });
@@ -68,18 +68,33 @@ function bind(root, vm) {
     });
   });
 
-  return new Proxy(vm, {
-    set(obj, prop, value) {
-      obj[prop] = value;
-      const bindingExpressions = bindings[prop];
-      if (bindingExpressions) {
-        bindingExpressions.forEach(expression => expression(obj));
-      }
-      return true;
+  function updateProperty(obj, prop) {
+    const bindingExpressions = bindings[prop];
+    if (bindingExpressions) {
+      bindingExpressions.forEach(expression => expression(obj));
     }
-  })
+  }
+
+  if (typeof Proxy !== 'undefined') {
+    return new Proxy(vm, {
+      set(obj, prop, value) {
+        obj[prop] = value;
+        updateProperty(obj, prop);
+        return true;
+      }
+    });
+  } else if (Object.observe) {
+    Object.observe(vm, changes => {
+      changes.forEach(change => updateProperty(change.object, change.name));
+    });
+    return vm;
+  } else {
+    throw new Error('Unsupported browser');
+  }
 }
 
-function bootstrap(root = document, vm = {}) {
+function bootstrap(root, vm) {
+  root = root || document;
+  vm = vm || {};
   return watch(root, bind(root, vm));
 }
