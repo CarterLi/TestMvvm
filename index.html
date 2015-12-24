@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>OK</title>
+  <title>TestMvvm</title>
 </head>
 <body style="font-family: monospace">
 <main>
@@ -32,12 +32,12 @@
   </p>
   <hr />
   <button data-click="this.a = this.b = 0; console.log($event)">重置0</button>
-  <button data-click="this.reset100($event)">重置50</button>
+  <button data-click="this.reset50($event)">重置50</button>
 </main>
 <script src="bind.js"></script>
 <script>
   bootstrap(document.querySelector('main'), {
-    reset100($event) {
+    reset50($event) {
       this.a = this.b = 50;
       console.log($event);
     }
