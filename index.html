@@ -9,30 +9,30 @@
   <p>
     <label>A = <input type="number" max="100" min="0" data-model="a" name="a" /></label>
     <label>B = <input type="number" max="100" min="0" data-model="b" name="b" /></label>
-    <label>A + B = <input type="number" data-value="Number(this.a) + Number(this.b)" readonly /></label>
+    <label>A + B = <input type="number" data-value="Number(this.a) + Number(this.b)" data-title="Number(this.a) + Number(this.b)" readonly /></label>
   </p>
   <hr />
   <p>
     <label>A = <input type="range" max="100" min="0" data-model="a" name="a" /></label>
     <label>B = <input type="range" max="100" min="0" data-model="b" name="b" /></label>
-    <label>A - B = <input type="range" max="100" min="-100" data-value="Number(this.a) - Number(this.b)" disabled /></label>
+    <label>A - B = <input type="range" max="100" min="-100" data-value="Number(this.a) - Number(this.b)" data-title="Number(this.a) - Number(this.b)" disabled /></label>
   </p>
   <hr />
   <p>
     <label>A = <progress data-value="Number(this.a)" max="100" min="0"></progress></label>
     <label>B = <progress data-value="Number(this.b)" max="100" min="0"></progress></label>
-    <label>A * B = <progress data-value="Number(this.a) * Number(this.b)" max="10000" min="0"></progress></label>
+    <label>A * B = <progress data-value="Number(this.a) * Number(this.b)" max="10000" min="0" data-title="Number(this.a) * Number(this.b)"></progress></label>
   </p>
   <hr />
   <p>
     A / B =
     <span data-bind="Number(this.a)"></span> /
     <span data-bind="Number(this.b)"></span> =
-    <span data-bind="Number(this.a) / Number(this.b)"></span>
+    <span data-bind="(Number(this.a) / Number(this.b)).toFixed(2)" data-title="Number(this.a) / Number(this.b)"></span>
   </p>
   <hr />
-  <button data-click="this.a = this.b = 0; console.log($event)">重置0</button>
-  <button data-click="this.reset50($event)">重置50</button>
+  <button data-on-click="this.a = this.b = 0; console.log($event)">重置0</button>
+  <button data-on-click="this.reset50($event)">重置50</button>
 </main>
 <script src="bind.js"></script>
 <script>
