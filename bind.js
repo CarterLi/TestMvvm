@@ -14,6 +14,17 @@ function watch(root, vm) {
      vm[elem.dataset.model] = elem.value;
     });
   })
+  
+  root.querySelectorAll('[data-click]').forEach(elem => {
+    const expText = elem.dataset.click;
+    elem.addEventListener('click', function expression($event) {
+      try {
+        return this.call(vm, $event);
+      } catch(e) {
+        if (e instanceof SyntaxError) throw e;
+      }
+    }.bind(new Function('$event', expText)))
+  });
 
   return vm;
 }
@@ -37,7 +48,7 @@ function bind(root, vm) {
     const expText = elem.dataset.bind || elem.dataset.value;
     const expression = function expression(property, vm) {
       try {
-        elem[property] = this.call(vm)
+        elem[property] = this.call(vm);
       } catch(e) {
         if (e instanceof SyntaxError) throw e;
         elem[property] = '';
@@ -53,7 +64,7 @@ function bind(root, vm) {
 
   root.querySelectorAll('[data-model]').forEach(elem => {
     pushOrSet(bindings, elem.dataset.model, function expression(vm) {
-      elem.value = vm[elem.dataset.model]
+      elem.value = vm[elem.dataset.model];
     });
   });
 

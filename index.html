@@ -31,12 +31,17 @@
     <span data-bind="Number(this.a) / Number(this.b)"></span>
   </p>
   <hr />
-  <button>重置0</button>
+  <button data-click="this.a = this.b = 0; console.log($event)">重置0</button>
+  <button data-click="this.reset100($event)">重置50</button>
 </main>
-<script src="watch.js"></script>
+<script src="bind.js"></script>
 <script>
-  var vm = bootstrap();
-  document.querySelector('button').onclick = function() { vm.a = vm.b = 0; };
+  bootstrap(document.querySelector('main'), {
+    reset100($event) {
+      this.a = this.b = 50;
+      console.log($event);
+    }
+  });
 </script>
 </body>
 </html>
