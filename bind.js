@@ -10,36 +10,64 @@ class Binder {
   }
 
   setTwowayBinding(elem, vm, expText) {
-    vm[expText] = elem.value;
+    const bindProperty = this.setOnewayToSourceBinding(elem, vm, expText);
+    this.setOnewayBinding(elem, vm, bindProperty, expText);
+  }
 
-    elem.addEventListener('input', () => {
-      vm[expText] = elem.value;
-    });
+  setOnewayToSourceBinding(elem, vm, expText) {
+    let bindProperty = 'value';
+    let bindEvent = 'input';
 
-    Binder.pushOrSet(this.bindings, expText, function expression(vm) {
-      elem.value = vm[expText];
-    });
+    if (elem.tagName === 'INPUT') {
+      switch (elem.type) {
+      case 'number':
+      case 'range':
+        bindProperty = 'valueAsNumber';
+        break;
+
+      case 'month':
+      case 'week':
+      case 'time':
+      case 'date':
+      case 'datetime':
+      case 'datetime-local':
+        bindProperty = 'valueAsDate';
+        break;
+
+      case 'radio':
+      case 'checkbox':
+        bindProperty = 'checked';
+        bindEvent = 'change';
+        break;
+      }
+    }
+
+    this.setEventBinding(elem, vm, bindEvent, `${expText} = $event.target.${bindProperty}`);
+
+    return bindProperty;
   }
 
   setEventBinding(elem, vm, eventName, expText) {
-    elem.addEventListener(eventName, function expression($event) {
+    elem.addEventListener(eventName, function eventBindingExpression($event) {
       try {
         return this.call(vm, $event);
       } catch (e) {
         if (e instanceof SyntaxError) throw e;
+        console.warn(e);
       }
-    }.bind(new Function('$event', expText)));
+    }.bind(new Function('$event', '"use strict";\n' + expText)));
   }
 
   setOnewayBinding(elem, vm, property, expText) {
-    const expression = function expression(property, vm) {
+    const expression = function onewayBindingExpression(property, vm) {
       try {
         elem[property] = this.call(vm);
       } catch (e) {
         if (e instanceof SyntaxError) throw e;
+        console.warn(e);
         elem[property] = '';
       }
-    }.bind(new Function('return ' + expText), property);
+    }.bind(new Function('"use strict";\nreturn ' + expText), property);
 
     expression(vm);
 
@@ -55,41 +83,42 @@ class Binder {
     }
   }
 
-  startWatching(vm, prefix) {
+  startWatching(vm, prefix, root) {
     if (Array.isArray(vm)) {
       throw new Error('Array is not supported (yet)');
     } else {
-      for (const key in vm) {
+      // We can't use const here or FF45 won't be happy
+      for (let key in vm) {
         if (vm.hasOwnProperty(key)) {
           const value = vm[key];
           if (value != null && typeof value === 'object') {
-            this.startWatching(value, `${prefix}${key}.`);
+            vm[key] = this.startWatching(value, `${prefix}${key}.`, root);
           }
         }
       }
     }
 
-    return this.observeObject(vm, prefix);
+    return this.observeObject(vm, prefix, root);
   }
 
   setupEssential() {
     if (typeof Proxy !== 'undefined') {
-      this.observeObject = function observeObject(vm, prefix) {
+      this.observeObject = function observeObject(vm, prefix, root) {
         const that = this;
         return new Proxy(vm, {
           set(obj, prop, value) {
             if (obj[prop] !== value) {
               obj[prop] = value;
-              that.updateProperty(obj, prefix + prop);
+              that.updateProperty(root, prefix + prop);
             }
             return true;
           }
         });
       };
     } else if (Object.observe) {
-      this.observeObject = function observeObject(vm, prefix) {
+      this.observeObject = function observeObject(vm, prefix, root) {
         Object.observe(vm, changes => {
-          changes.forEach(change => this.updateProperty(change.object, prefix + change.name));
+          changes.forEach(change => this.updateProperty(root, prefix + change.name));
         });
         return vm;
       };
@@ -101,12 +130,14 @@ class Binder {
   constructor(root, vm) {
     this.setupEssential();
     this.bindings = Object.create(null);
-    vm = this.startWatching(vm, '');
+    vm = this.startWatching(vm, '', vm);
 
     Array.prototype.forEach.call(root.querySelectorAll('*'), elem => {
       Object.keys(elem.dataset).forEach(key => {
         if (key === 'init') {
           new Function(elem.dataset[key]).call(vm);
+        } else if (key === 'source') {
+          this.setOnewayToSourceBinding(elem, vm, elem.dataset[key]);
         } else if (key === 'model') {
           this.setTwowayBinding(elem, vm, elem.dataset[key]);
         } else if (/^on[A-Z]/.test(key)) {

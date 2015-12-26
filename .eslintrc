@@ -15,12 +15,12 @@
     "semi": [2, "always"],
     "no-extra-semi": 1,
     "no-undef": 2,
-    "no-console": 1,
     "no-unused-vars": 1,
     "no-delete-var": 2,
     "space-infix-ops": 1,
     "no-mixed-spaces-and-tabs": 2,
     "no-useless-concat": 1,
+    "no-console": 0,
 
     "one-var": [1, {
         "initialized": "never",

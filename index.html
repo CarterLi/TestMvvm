@@ -7,38 +7,53 @@
 <body style="font-family: monospace">
 <main>
   <p>
-    <label>A = <input type="number" max="100" min="0" data-model="a" name="a" /></label>
-    <label>B = <input type="number" max="100" min="0" data-model="b" name="b" /></label>
-    <label>A + B = <input type="number" data-value="Number(this.a) + Number(this.b)" data-title="Number(this.a) + Number(this.b)" readonly /></label>
+    <label>A = <input type="number" max="100" min="0" data-model="this.a" name="a" /></label>
+    <label>B = <input type="number" max="100" min="0" data-model="this.b" name="b" /></label>
+    <label>A + B = <input type="text" data-value="this.a + this.b" data-title="this.a + this.b" readonly /></label>
   </p>
+  <p>
+    <label>A = <progress data-value="this.a" max="100" min="0"></progress></label>
+    <label>B = <progress data-value="this.b" max="100" min="0"></progress></label>
+    <label>A * B = <progress data-value="this.a * this.b" max="10000" min="0" data-title="this.a * this.b"></progress></label>
+  </p>
+  <p>
+    <label>Is A + B maximum? <input type="checkbox" data-checked="this.a + this.b === 200" disabled />
+  </p>
+  <hr />
+  <button data-on-click="this.a = this.b = 0; console.log($event)">Resets 0</button>
   <hr />
   <p>
-    <label>A = <input type="range" max="100" min="0" data-model="a" name="a" /></label>
-    <label>B = <input type="range" max="100" min="0" data-model="b" name="b" /></label>
-    <label>A - B = <input type="range" max="100" min="-100" data-value="Number(this.a) - Number(this.b)" data-title="Number(this.a) - Number(this.b)" disabled /></label>
+    <label>A = <input type="range" max="100" min="0" data-model="this.inner.a" name="a" /></label>
+    <label>B = <input type="range" max="100" min="0" data-model="this.inner.b" name="b" /></label>
+    <label>A - B = <input type="range" max="100" min="-100" data-value="this.inner.a - this.inner.b" data-title="this.inner.a - this.inner.b" disabled /></label>
   </p>
-  <hr />
-  <p>
-    <label>A = <progress data-value="Number(this.a)" max="100" min="0"></progress></label>
-    <label>B = <progress data-value="Number(this.b)" max="100" min="0"></progress></label>
-    <label>A * B = <progress data-value="Number(this.a) * Number(this.b)" max="10000" min="0" data-title="Number(this.a) * Number(this.b)"></progress></label>
-  </p>
-  <hr />
   <p>
     A / B =
-    <span data-bind="Number(this.a)"></span> /
-    <span data-bind="Number(this.b)"></span> =
-    <span data-bind="(Number(this.a) / Number(this.b)).toFixed(2)" data-title="Number(this.a) / Number(this.b)"></span>
+    <span data-bind="this.inner.a"></span> /
+    <span data-bind="this.inner.b"></span> =
+    <span data-bind="(this.inner.a / this.inner.b).toFixed(2)" data-title="this.inner.a / this.inner.b"></span>
+  </p>
+  <p>
+    <label>Is A - B minimum? <input type="radio" data-checked="this.inner.a - this.inner.b === -100" disabled /></label>
   </p>
   <hr />
-  <button data-on-click="this.a = this.b = 0; console.log($event)">重置0</button>
-  <button data-on-click="this.reset50($event)">重置50</button>
+  <button data-on-click="this.reset50($event)">Resets 50</button>
+  <hr />
+  <label>You <span data-bind="this.checkbox ? '' : 'un'"></span>selected this checkbox: <input type="checkbox" data-model="this.checkbox" /></label>
+  <hr />
+  <span data-bind="(this.radio || 'None') + ' is selected: '"></span>
+  <label><input type="radio" data-checked="this.radio === 1" data-on-click="this.radio = 1" />1</label>
+  <label><input type="radio" data-checked="this.radio === 2" data-on-click="this.radio = 2" />2</label>
+  <label><input type="radio" data-checked="this.radio === 3" data-on-click="this.radio = 3" />3</label>
 </main>
 <script src="bind.js"></script>
 <script>
   bootstrap(document.querySelector('main'), {
+    a: 50,
+    b: 50,
+    inner: { a: 50, b: 50 },
     reset50($event) {
-      this.a = this.b = 50;
+      this.inner.a = this.inner.b = 50;
       console.log($event);
     }
   });
