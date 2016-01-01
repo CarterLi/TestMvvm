@@ -3,6 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <title>TestMvvm</title>
+
+  <style>
+    .hide-me {
+      display: none !important;
+    }
+  </style>
 </head>
 <body style="font-family: monospace">
 <main>
@@ -17,7 +23,7 @@
     <label>A * B = <progress data-value="this.a * this.b" max="10000" min="0" data-title="this.a * this.b"></progress></label>
   </p>
   <p>
-    <label>Is A + B maximum? <input type="checkbox" data-checked="this.a + this.b === 200" disabled />
+    <label>Is A + B maximum? <input type="checkbox" data-checked="this.a + this.b === 200" disabled /></label>
   </p>
   <hr />
   <button data-on-click="this.a = this.b = 0; console.log($event)">Resets 0</button>
@@ -39,7 +45,7 @@
   <hr />
   <button data-on-click="this.reset50($event)">Resets 50</button>
   <hr />
-  <label>You <span data-bind="this.checkbox ? '' : 'un'"></span>selected this checkbox: <input type="checkbox" data-model="this.checkbox" /></label>
+  <label>You <span data-class-hide-me="this.checkbox">un</span>selected this checkbox: <input type="checkbox" data-model="this.checkbox" /></label>
   <hr />
   <span data-bind="(this.radio || 'None') + ' is selected: '"></span>
   <label><input type="radio" data-checked="this.radio === 1" data-on-click="this.radio = 1" />1</label>

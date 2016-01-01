@@ -11,7 +11,7 @@ class Binder {
 
   setTwowayBinding(elem, vm, expText) {
     const bindProperty = this.setOnewayToSourceBinding(elem, vm, expText);
-    this.setOnewayBinding(elem, vm, bindProperty, expText);
+    this.setOnewayBinding(elem, vm, (elem, value) => elem[bindProperty] = value, expText);
   }
 
   setOnewayToSourceBinding(elem, vm, expText) {
@@ -58,16 +58,17 @@ class Binder {
     }.bind(new Function('$event', '"use strict";\n' + expText)));
   }
 
-  setOnewayBinding(elem, vm, property, expText) {
-    const expression = function onewayBindingExpression(property, vm) {
+  setOnewayBinding(elem, vm, callback, expText) {
+    const expression = function onewayBindingExpression(callback, vm) {
+      let value = undefined;
       try {
-        elem[property] = this.call(vm);
+        value = this.call(vm);
       } catch (e) {
         if (e instanceof SyntaxError) throw e;
         console.warn(e);
-        elem[property] = '';
       }
-    }.bind(new Function('"use strict";\nreturn ' + expText), property);
+      callback(elem, value);
+    }.bind(new Function('"use strict";\nreturn ' + expText), callback);
 
     expression(vm);
 
@@ -91,7 +92,7 @@ class Binder {
               if (Array.isArray(value)) {
                 throw new Error('Unsupported yet');
               }
-              
+
               // TODO
               break;
 
@@ -180,8 +181,16 @@ class Binder {
           this.setRepeatBinding(elem, vm, elem.dataset[key]);
         } else if (/^on[A-Z]/.test(key)) {
           this.setEventBinding(elem, vm, key.slice(2).toLowerCase(), elem.dataset[key]);
+        } else if (/^class[A-Z]/.test(key)) {
+          const className = key.slice(5).replace(/[A-Z]/g, (match, offset) => (offset ? '-' : '') + match.toLowerCase());
+          this.setOnewayBinding(elem, vm, (elem, value) => {
+            elem.classList[value ? 'add' : 'remove'](className);
+          }, elem.dataset[key]);
         } else {
-          this.setOnewayBinding(elem, vm, key === 'bind' ? 'textContent' : key, elem.dataset[key]);
+          const property = key === 'bind' ? 'textContent' : key;
+          this.setOnewayBinding(elem, vm, (elem, value) => {
+            elem[property] = value;
+          }, elem.dataset[key]);
         }
       });
     });
