@@ -76,6 +76,42 @@ class Binder {
     }
   }
 
+  setRepeatBinding(elem, vm, property, expText) {
+    const generatedElements = [];
+    const expression = function repeatBindingExpression(property, vm) {
+      try {
+        generatedElements.length = 0;
+        for (let value of this.call(vm)) {
+          if (value != null) {
+            const newNode = document.importNode(elem.content, true);
+            generatedElements.push(newNode);
+
+            switch (typeof value) {
+            case 'object':
+              if (Array.isArray(value)) {
+                throw new Error('Unsupported yet');
+              }
+              
+              // TODO
+              break;
+
+            case 'function':
+            case 'symbol':
+              throw new TypeError('Invalid');
+
+            default:
+              throw new Error('Unsupported yet');
+            }
+          }
+        }
+      } catch (e) {
+        if (e instanceof SyntaxError) throw e;
+        console.warn(e);
+      }
+    }.bind(new Function('"use strict";\nreturn ' + expText), property);
+
+  }
+
   updateProperty(obj, prop) {
     const bindingExpressions = this.bindings[prop];
     if (bindingExpressions) {
@@ -140,6 +176,8 @@ class Binder {
           this.setOnewayToSourceBinding(elem, vm, elem.dataset[key]);
         } else if (key === 'model') {
           this.setTwowayBinding(elem, vm, elem.dataset[key]);
+        } else if (key === 'repeat' && elem.tagName === 'TEMPLATE') {
+          this.setRepeatBinding(elem, vm, elem.dataset[key]);
         } else if (/^on[A-Z]/.test(key)) {
           this.setEventBinding(elem, vm, key.slice(2).toLowerCase(), elem.dataset[key]);
         } else {

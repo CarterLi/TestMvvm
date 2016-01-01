@@ -45,6 +45,10 @@
   <label><input type="radio" data-checked="this.radio === 1" data-on-click="this.radio = 1" />1</label>
   <label><input type="radio" data-checked="this.radio === 2" data-on-click="this.radio = 2" />2</label>
   <label><input type="radio" data-checked="this.radio === 3" data-on-click="this.radio = 3" />3</label>
+  <hr />
+  <template data-repeat="[1, 2, 3]">
+    <span data-bind="this"></span>
+  </template>
 </main>
 <script src="bind.js"></script>
 <script>
